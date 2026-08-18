@@ -7,7 +7,6 @@ from sim_engine import SimulationEngine
 from ai_logic import AIEngine
 from ui_components import render_metric_card, render_ai_insight, render_sensor_chart, render_risk_gauge
 
-# Must be the first Streamlit command
 st.set_page_config(page_title="IntelliHMI", page_icon="⚡", layout="wide")
 
 def load_css():
@@ -18,7 +17,6 @@ def load_css():
 
 load_css()
 
-# Initialize session state
 if 'sim_engine' not in st.session_state:
     st.session_state.sim_engine = SimulationEngine()
 if 'ai_engine' not in st.session_state:
@@ -28,7 +26,6 @@ if 'history' not in st.session_state:
 if 'auto_refresh' not in st.session_state:
     st.session_state.auto_refresh = True
 
-# --- Sidebar ---
 with st.sidebar:
     st.markdown("<div style='font-size: 2rem; font-weight: 700; color: #f8fafc; margin-bottom: 20px;'>⚡ IntelliHMI</div>", unsafe_allow_html=True)
     
@@ -45,10 +42,8 @@ with st.sidebar:
         st.session_state.history = pd.DataFrame(columns=['time', 'temperature', 'pressure', 'vibration', 'gas_leakage', 'power_consumption'])
         st.rerun()
 
-# --- Data Update Logic ---
 data = st.session_state.sim_engine.get_sensor_data()
 
-# Update history
 new_row = {
     'time': data['timestamp'],
     'temperature': data['sensors']['temperature']['value'],
@@ -61,13 +56,11 @@ st.session_state.history = pd.concat([st.session_state.history, pd.DataFrame([ne
 if len(st.session_state.history) > 30: # Keep last 30 ticks
     st.session_state.history = st.session_state.history.tail(30)
 
-# --- AI Logic Processing ---
 alarms = st.session_state.ai_engine.evaluate_alarms(data)
 clusters = st.session_state.ai_engine.group_incidents(alarms)
 insights = st.session_state.ai_engine.generate_root_cause(clusters)
 fail_prob, fail_time = st.session_state.ai_engine.predict_failure(alarms, data['cycle_tick'])
 
-# --- Main App Layout ---
 st.markdown("<div class='title-main'>IntelliHMI Global Overview</div>", unsafe_allow_html=True)
 st.markdown(f"<div class='subtitle'>Real-time Operations Dashboard • {data['timestamp']}</div>", unsafe_allow_html=True)
 
